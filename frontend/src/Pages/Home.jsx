@@ -2,35 +2,37 @@ import React, { useContext, useEffect, useState } from 'react';
 import { AuctionContext } from '../context/AuctionContext';
 import { UserContext } from '../context/UserContext';
 import { Link } from 'react-router-dom';
+import { CircleLoader } from 'react-spinners'; // Optional: For a loading spinner
 
 export default function Home() {
-  const { auctionItems, deleteAuctionItem, fetchAuctionItems } = useContext(AuctionContext);
+  const { auctions, fetchAuctionItems, deleteAuction } = useContext(AuctionContext);
   const { current_user } = useContext(UserContext);
 
-  // Local state to manage loading and error states
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    // Load auction items when component mounts
     const loadItems = async () => {
       try {
         setLoading(true);
-        // Fetch auction items from the API (if this function is implemented in context)
-        await fetchAuctionItems();
+        fetchAuctionItems(); // Fetch auction items from the context
         setLoading(false);
       } catch (err) {
-        setError('Failed to load auction items. Please try again later.');
+        setError(`Failed to load auction items: ${err.message || 'Unknown error'}`);
         setLoading(false);
       }
     };
 
     loadItems();
-  }, [fetchAuctionItems]);
+  }, [fetchAuctionItems]); // We only want to call this once when the component mounts
+
+  // Ensure auctions is an array to prevent issues with .length
+  const items = Array.isArray(auctions) ? auctions : [];
 
   if (loading) {
     return (
       <div className="text-center mt-6">
+        <CircleLoader color="#0000ff" loading={loading} size={50} />
         <p>Loading auction items...</p>
       </div>
     );
@@ -39,43 +41,42 @@ export default function Home() {
   return (
     <div className="p-4">
       <h1 className="my-3 text-xl font-bold">
-        Your Auction Items - {auctionItems && auctionItems.length}
+        Your Auction Items - {items.length}
       </h1>
 
       {error && (
-        <div className="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-300">
+        <div className="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50">
           {error}
         </div>
       )}
 
       {current_user ? (
         <div>
-          {auctionItems && auctionItems.length < 1 ? (
+          {items.length === 0 ? (
             <div>
-              <p>You don't have any auction items. </p>
-              <Link
-                to="/addauction"
-                className="text-blue-600 font-semibold underline hover:text-blue-800"
-              >
-                Create one now
+              <p>You currently don't have any auction items.</p>
+              <Link to="/addauction" className="text-blue-600 font-semibold underline hover:text-blue-800">
+                Start your first auction now!
               </Link>
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {auctionItems.map((item) => (
+              {items.map((item) => (
                 <div
                   key={item.id}
-                  className="border border-blue-700 p-4 rounded-lg shadow-md hover:shadow-lg transition-all"
+                  className="auction-item border border-blue-700 p-4 rounded-lg shadow-md hover:shadow-lg transition-all"
                 >
                   <div className="flex items-center justify-between mb-3">
                     <button
-                      onClick={() => deleteAuctionItem(item.id)}
+                      onClick={() => deleteAuction(item.id)} // Handle delete
                       className="bg-red-600 text-white px-3 py-1 rounded-lg hover:bg-red-400"
                       aria-label="Delete Auction Item"
                     >
                       Delete
                     </button>
-                    <p className="text-right text-xs">{item.deadline}</p>
+                    <p className="text-right text-xs">
+                      {new Date(item.deadline).toLocaleDateString()}
+                    </p>
                   </div>
 
                   <Link to={`/auction/${item.id}`} className="font-semibold text-lg block">
@@ -100,7 +101,7 @@ export default function Home() {
       ) : (
         <div className="text-center mt-6">
           <div
-            className="p-4 mb-4 text-sm text-yellow-800 rounded-lg bg-yellow-50 dark:bg-gray-800 dark:text-yellow-300"
+            className="p-4 mb-4 text-sm text-yellow-800 rounded-lg bg-yellow-50"
             role="alert"
           >
             <Link to="/login" className="font-medium text-blue-600">

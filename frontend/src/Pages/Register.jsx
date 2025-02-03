@@ -1,16 +1,16 @@
 import React, { useState, useContext } from 'react';
 import { Link } from 'react-router-dom'; // Make sure Link is imported
-import { UserContext } from '../context/UserContext';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios'; // Ensure you have axios installed
 
 const Register = () => {
-  const { addUser, errorMessage } = useContext(UserContext);
   const navigate = useNavigate();
 
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [repeatPassword, setRepeatPassword] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -26,10 +26,18 @@ const Register = () => {
     }
 
     try {
-      await addUser(username, email, password);
-      navigate('/profile'); // Redirect to profile after successful registration
+      // Sending a POST request to the /register endpoint
+      const response = await axios.post('http://localhost:5000/register', {
+        username,
+        email,
+        password,
+      });
+      if (response.status === 201) {
+        navigate('/profile'); // Redirect to profile after successful registration
+      }
     } catch (error) {
       console.error("Registration failed:", error);
+      setErrorMessage(error.response?.data?.message || 'An error occurred. Please try again.');
     }
   };
 

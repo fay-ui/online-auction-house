@@ -9,20 +9,31 @@ export default function ProfilePage() {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const navigate = useNavigate();
 
   // Fetch user data when component mounts
   useEffect(() => {
-    if (!current_user) {
-      // Redirect to login if not logged in
-      navigate('/login');
-    } else {
-      // Simulate async fetching of user data (could be an API call)
-      setUsername(current_user.username);
-      setEmail(current_user.email);
-      setLoading(false);
-    }
-  }, [current_user, navigate]);
+    const fetchData = async () => {
+      if (!current_user) {
+        // Redirect to login if not logged in
+        navigate('/login');
+      } else {
+        try {
+          // Simulate async fetching of user data (could be an API call)
+          await fetchCurrentUser(); // Assuming this action updates `current_user`
+          setUsername(current_user.username);
+          setEmail(current_user.email);
+          setLoading(false);
+        } catch (err) {
+          setError('Failed to load user data.');
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchData();
+  }, [current_user, navigate, fetchCurrentUser]);
 
   const handleUpdate = async (e) => {
     e.preventDefault();
@@ -36,6 +47,7 @@ export default function ProfilePage() {
       await updateUser({ username, email }); // Assuming `updateUser` is a function in your context to update the user info
       setEditMode(false);
       setError('');
+      setSuccess('Profile updated successfully!');
     } catch (err) {
       setError('Failed to update profile. Please try again later.');
     }
@@ -53,8 +65,9 @@ export default function ProfilePage() {
         <div className="max-w-4xl mx-auto p-6 bg-white shadow-lg rounded-lg mt-10">
           <h2 className="text-3xl font-semibold text-gray-700 mb-6">Profile</h2>
 
-          {/* Error Message */}
+          {/* Error and Success Messages */}
           {error && <p className="text-red-600">{error}</p>}
+          {success && <p className="text-green-600">{success}</p>}
 
           <div className="space-y-4">
             {/* Username */}
@@ -132,7 +145,10 @@ export default function ProfilePage() {
 
             {/* Logout Button */}
             <button
-              onClick={logout} // Triggers the logout function from context
+              onClick={() => {
+                logout();
+                navigate('/login'); // Redirect to login after logout
+              }}
               className="px-6 py-2 bg-red-600 text-white font-medium rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
             >
               Logout

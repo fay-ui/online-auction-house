@@ -1,8 +1,7 @@
-# models.py
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 
-# Define db here, but don’t initialize it yet.
+# Initialize the db
 db = SQLAlchemy()
 
 class User(db.Model):
@@ -20,6 +19,7 @@ class AuctionItem(db.Model):
     title = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text, nullable=False)
     starting_price = db.Column(db.Float, nullable=False)
+    image_url = db.Column(db.String(255), nullable=True)  # Add image_url to store the path to the image
     seller_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     seller = db.relationship('User', backref=db.backref('auction_items', lazy=True))
 

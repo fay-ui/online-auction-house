@@ -47,7 +47,7 @@ def place_bid():
         return jsonify(msg="Bid placed successfully", bid_id=new_bid.id), 201
     except Exception as e:
         db.session.rollback()
-        return jsonify({"msg": "Error placing bid, please try again later"}), 500
+        return jsonify({"msg": f"Error placing bid: {str(e)}"}), 500
 
 
 # View all bids for a specific auction item
@@ -105,4 +105,4 @@ def delete_bid(bid_id):
         return jsonify(msg="Bid deleted successfully"), 200
     except Exception as e:
         db.session.rollback()
-        return jsonify({"msg": "Error deleting bid, please try again later"}), 500
+        return jsonify({"msg": f"Error deleting bid: {str(e)}"}), 500

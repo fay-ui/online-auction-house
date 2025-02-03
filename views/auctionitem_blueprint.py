@@ -1,8 +1,18 @@
 from flask import Blueprint, request, jsonify
 from models import db, AuctionItem, User
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from werkzeug.utils import secure_filename
+import os
 
 auctionitem_bp = Blueprint('auctionitem_bp', __name__)
+
+# Configuration for image upload
+UPLOAD_FOLDER = 'uploads'
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+
+# Helper function to check allowed file extensions
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 # Create a new auction item
 @auctionitem_bp.route('/create', methods=['POST'])
@@ -28,12 +38,22 @@ def create_auction_item():
     if starting_price <= 0:
         return jsonify({"msg": "Starting price must be greater than 0"}), 400
 
+    # Handle image upload if provided
+    image_url = None
+    if 'image' in request.files:
+        image = request.files['image']
+        if image and allowed_file(image.filename):
+            filename = secure_filename(image.filename)
+            image.save(os.path.join(UPLOAD_FOLDER, filename))
+            image_url = os.path.join(UPLOAD_FOLDER, filename)  # Store the path
+
     # Create a new auction item
     new_item = AuctionItem(
         title=title, 
         description=description, 
         starting_price=starting_price, 
-        seller_id=user_id
+        seller_id=user_id,
+        image_url=image_url  # Save image URL if available
     )
     db.session.add(new_item)
     db.session.commit()
@@ -49,6 +69,7 @@ def view_auction_item(item_id):
         "title": item.title, 
         "description": item.description, 
         "starting_price": item.starting_price,
+        "image_url": item.image_url,  # Include image URL in the response
         "created_at": item.created_at,  # Optionally include timestamps
         "updated_at": item.updated_at  # Optionally include timestamps
     }), 200
@@ -69,6 +90,7 @@ def get_all_auction_items():
         "title": item.title,
         "description": item.description,
         "starting_price": item.starting_price,
+        "image_url": item.image_url,  # Include image URL in the list
         "created_at": item.created_at,
         "updated_at": item.updated_at
     } for item in items]
@@ -103,6 +125,14 @@ def update_auction_item(item_id):
         item.description = description
     if starting_price:
         item.starting_price = float(starting_price)  # Ensure it's a valid number
+
+    # Handle image upload if provided during update
+    if 'image' in request.files:
+        image = request.files['image']
+        if image and allowed_file(image.filename):
+            filename = secure_filename(image.filename)
+            image.save(os.path.join(UPLOAD_FOLDER, filename))
+            item.image_url = os.path.join(UPLOAD_FOLDER, filename)  # Update image URL
 
     db.session.commit()
 

@@ -5,104 +5,74 @@ const AddAuction = () => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
-  const [loading, setLoading] = useState(false); // To track if the form is being submitted
-  const [error, setError] = useState(null); // To capture any errors
-  const [success, setSuccess] = useState(null); // To capture success message
+  const [image, setImage] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
 
-  // Handle form submission
+  const handleFileChange = (e) => {
+    setImage(e.target.files[0]);
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    // Validate inputs
-    if (!title || !description || !price || isNaN(price) || price <= 0) {
+    if (!title || !description || !price || price <= 0) {
       setError('Please fill all fields correctly.');
-      setSuccess(null); // Clear success message
       return;
     }
 
-    const newItem = {
-      id: Date.now(), // Use timestamp as ID
-      title,
-      description,
-      price: parseFloat(price),
-    };
+    setLoading(true);
+    setError(null);
+    const formData = new FormData();
+    formData.append('title', title);
+    formData.append('description', description);
+    formData.append('price', price);
+    if (image) formData.append('image', image);
 
-    setLoading(true); // Start loading state
-    setError(null); // Clear any previous error
-    setSuccess(null); // Clear previous success message
-
-    // Make POST request to add auction item
-    axios.post('http://localhost:5000/api/items', newItem)
+    axios.post('your-api-url', formData)
       .then(response => {
-        console.log('Added item:', response.data);
-        // Clear form fields on success
+        setLoading(false);
+        setSuccess('Auction item added successfully!');
         setTitle('');
         setDescription('');
         setPrice('');
-        setLoading(false);
-        setSuccess('Auction item added successfully!'); // Success message
+        setImage(null);
       })
-      .catch(error => {
-        console.error('Error adding item:', error);
-        setError('Error adding item. Please try again later.');
-        setLoading(false); // Stop loading state
-        setSuccess(null); // Clear success message
+      .catch(() => {
+        setLoading(false);
+        setError('Error adding item, please try again.');
       });
   };
 
   return (
-    <div className="max-w-md mx-auto p-6 bg-white shadow-lg rounded-lg mt-10">
-      <h2 className="text-2xl font-semibold text-center mb-6">Add Auction Item</h2>
-
-      {/* Success and Error Messages */}
-      {error && <div className="text-red-600 text-center mb-4">{error}</div>}
-      {success && <div className="text-green-600 text-center mb-4">{success}</div>}
-
-      <form onSubmit={handleSubmit}>
-        <div className="mb-4">
-          <input
-            type="text"
-            placeholder="Title"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            className="w-full h-12 px-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          />
-        </div>
-
-        <div className="mb-4">
-          <textarea
-            placeholder="Description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            className="w-full h-24 px-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          />
-        </div>
-
-        <div className="mb-6">
-          <input
-            type="number"
-            placeholder="Price"
-            value={price}
-            onChange={(e) => setPrice(e.target.value)}
-            className="w-full h-12 px-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          />
-        </div>
-
-        <button
-          type="submit"
-          disabled={loading}
-          className={`w-full h-12 rounded-md text-white font-semibold focus:outline-none focus:ring-2 ${
-            loading ? 'bg-gray-400' : 'bg-indigo-600 hover:bg-indigo-700'
-          }`}
-        >
-          {loading ? (
-            <span>Submitting...</span> // You can replace this with a spinner if needed
-          ) : (
-            'Add Item'
-          )}
-        </button>
-      </form>
-    </div>
+    <form onSubmit={handleSubmit} className="auction-form">
+      {success && <p>{success}</p>}
+      {error && <p>{error}</p>}
+      <input
+        type="text"
+        placeholder="Title"
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+      />
+      <textarea
+        placeholder="Description"
+        value={description}
+        onChange={(e) => setDescription(e.target.value)}
+      />
+      <input
+        type="number"
+        placeholder="Price"
+        value={price}
+        onChange={(e) => setPrice(e.target.value)}
+      />
+      <input
+        type="file"
+        onChange={handleFileChange}
+      />
+      <button type="submit" disabled={loading}>
+        {loading ? 'Adding...' : 'Add Auction'}
+      </button>
+    </form>
   );
 };
 
