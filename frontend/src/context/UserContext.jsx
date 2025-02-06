@@ -14,13 +14,15 @@ export const UserProvider = ({ children }) => {
   // Check if user is already logged in
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
+    
+    // Check if user data exists and is valid JSON
     if (storedUser) {
       try {
         const parsedUser = JSON.parse(storedUser);
         setUser(parsedUser); // If valid JSON, set the user as the current user
       } catch (error) {
         console.error("Failed to parse user data from localStorage:", error);
-        localStorage.removeItem('user'); // Optionally, remove corrupted data
+        localStorage.removeItem('user'); // Remove corrupted data
         setUser(null); // Clear the user state
       }
     }

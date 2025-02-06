@@ -55,6 +55,15 @@ export default function Navbar() {
             </li>
             <li>
               <Link
+                to="/dashboard"
+                className={`block py-2 px-3 rounded md:p-0 ${isActive('/dashboard')}`}
+                aria-current={location.pathname === '/dashboard' ? 'page' : undefined}
+              >
+                Dashboard
+              </Link>
+            </li>
+            <li>
+              <Link
                 to="/register"
                 className={`block py-2 px-3 rounded md:p-0 ${isActive('/register')}`}
                 aria-current={location.pathname === '/register' ? 'page' : undefined}

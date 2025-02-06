@@ -27,7 +27,7 @@ export default function Login() {
     try {
       const response = await login(email, password); // login returns a promise
       if (response?.access_token) { // Correctly check for access_token
-        // Store JWT token in localStorage or sessionStorage
+        // Store JWT token in localStorage
         localStorage.setItem('token', response.access_token);
         navigate('/profile'); // Redirect to the profile page after login
 

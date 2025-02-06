@@ -1,77 +1,81 @@
-import React, { useState } from 'react';
-import axios from 'axios';
+import React, { useState, useContext } from 'react';
+import { AuctionContext } from '../context/AuctionContext';
 
 const AddAuction = () => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [price, setPrice] = useState('');
+  const [startingPrice, setStartingPrice] = useState('');
   const [image, setImage] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(null);
+  const { addAuction } = useContext(AuctionContext);
 
-  const handleFileChange = (e) => {
-    setImage(e.target.files[0]);
+  // Validation for starting price
+  const isValidNumber = (value) => {
+    return !isNaN(value) && value > 0;
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!title || !description || !price || price <= 0) {
-      setError('Please fill all fields correctly.');
+
+    // Validate inputs
+    if (!title || !description || !startingPrice || !isValidNumber(startingPrice)) {
+      alert('Please fill in all fields with valid data');
       return;
     }
 
-    setLoading(true);
-    setError(null);
-    const formData = new FormData();
-    formData.append('title', title);
-    formData.append('description', description);
-    formData.append('price', price);
-    if (image) formData.append('image', image);
+    // Prepare auction data to be sent
+    const auctionData = {
+      title,
+      description,
+      startingPrice: parseFloat(startingPrice), // Ensure it is a number
+    };
 
-    axios.post('your-api-url', formData)
-      .then(response => {
-        setLoading(false);
-        setSuccess('Auction item added successfully!');
-        setTitle('');
-        setDescription('');
-        setPrice('');
-        setImage(null);
-      })
-      .catch(() => {
-        setLoading(false);
-        setError('Error adding item, please try again.');
-      });
+    // Pass auction data and image to the addAuction function
+    addAuction(auctionData, image);
+
+    // Clear the form after submission
+    setTitle('');
+    setDescription('');
+    setStartingPrice('');
+    setImage(null);
   };
 
   return (
-    <form onSubmit={handleSubmit} className="auction-form">
-      {success && <p>{success}</p>}
-      {error && <p>{error}</p>}
-      <input
-        type="text"
-        placeholder="Title"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-      />
-      <textarea
-        placeholder="Description"
-        value={description}
-        onChange={(e) => setDescription(e.target.value)}
-      />
-      <input
-        type="number"
-        placeholder="Price"
-        value={price}
-        onChange={(e) => setPrice(e.target.value)}
-      />
-      <input
-        type="file"
-        onChange={handleFileChange}
-      />
-      <button type="submit" disabled={loading}>
-        {loading ? 'Adding...' : 'Add Auction'}
-      </button>
+    <form onSubmit={handleSubmit}>
+      <div>
+        <input
+          type="text"
+          placeholder="Title"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          required
+        />
+      </div>
+      <div>
+        <textarea
+          placeholder="Description"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          required
+        />
+      </div>
+      <div>
+        <input
+          type="number"
+          placeholder="Starting Price"
+          value={startingPrice}
+          onChange={(e) => setStartingPrice(e.target.value)}
+          required
+        />
+      </div>
+      <div>
+        <input
+          type="file"
+          onChange={(e) => setImage(e.target.files[0])}
+        />
+      </div>
+      <div>
+        <button type="submit">Add Auction</button>
+      </div>
     </form>
   );
 };

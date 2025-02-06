@@ -1,8 +1,9 @@
+// src/pages/Home.jsx
 import React, { useContext, useEffect, useState } from 'react';
-import { AuctionContext } from '../context/AuctionContext';
+import { AuctionContext } from '../context/AuctionContext'; // Correct relative import
 import { UserContext } from '../context/UserContext';
 import { Link } from 'react-router-dom';
-import { CircleLoader } from 'react-spinners'; // Optional: For a loading spinner
+import { CircleLoader } from 'react-spinners';
 
 export default function Home() {
   const { auctions, fetchAuctionItems, deleteAuction } = useContext(AuctionContext);
@@ -12,10 +13,11 @@ export default function Home() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    // Immediately invoke the fetch function inside the useEffect only on component mount
     const loadItems = async () => {
       try {
         setLoading(true);
-        fetchAuctionItems(); // Fetch auction items from the context
+        await fetchAuctionItems(); // Fetch auction items from context
         setLoading(false);
       } catch (err) {
         setError(`Failed to load auction items: ${err.message || 'Unknown error'}`);
@@ -23,10 +25,9 @@ export default function Home() {
       }
     };
 
-    loadItems();
-  }, [fetchAuctionItems]); // We only want to call this once when the component mounts
+    loadItems(); // Fetch the items when the component is mounted
+  }, []);  // Empty dependency array means this only runs once, preventing a loop
 
-  // Ensure auctions is an array to prevent issues with .length
   const items = Array.isArray(auctions) ? auctions : [];
 
   if (loading) {
@@ -68,7 +69,7 @@ export default function Home() {
                 >
                   <div className="flex items-center justify-between mb-3">
                     <button
-                      onClick={() => deleteAuction(item.id)} // Handle delete
+                      onClick={() => deleteAuction(item.id)}
                       className="bg-red-600 text-white px-3 py-1 rounded-lg hover:bg-red-400"
                       aria-label="Delete Auction Item"
                     >
@@ -100,10 +101,7 @@ export default function Home() {
         </div>
       ) : (
         <div className="text-center mt-6">
-          <div
-            className="p-4 mb-4 text-sm text-yellow-800 rounded-lg bg-yellow-50"
-            role="alert"
-          >
+          <div className="p-4 mb-4 text-sm text-yellow-800 rounded-lg bg-yellow-50" role="alert">
             <Link to="/login" className="font-medium text-blue-600">
               Login
             </Link>{' '}
