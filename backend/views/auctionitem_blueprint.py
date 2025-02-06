@@ -3,7 +3,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from werkzeug.utils import secure_filename
 import os
 from models import db, AuctionItem  # Assuming you have these models set up
-from yourapp import UPLOAD_FOLDER  # Import your upload folder path here
+from app import UPLOAD_FOLDER  # Correct the import to use the app.py file
 from yourapp.helpers import allowed_file  # Assuming you have a helper function for file validation
 
 # Create the blueprint
