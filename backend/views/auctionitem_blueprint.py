@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from werkzeug.utils import secure_filename
-from yourapp import db, AuctionItem, UPLOAD_FOLDER  # replace 'yourapp' with your app module
+from app import db, AuctionItem, UPLOAD_FOLDER  # replace 'yourapp' with your app module
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
 # Define allowed file extensions
