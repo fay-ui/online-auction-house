@@ -1,15 +1,16 @@
 from flask import Blueprint, request, jsonify
-from flask_jwt_extended import jwt_required, get_jwt_identity
 from werkzeug.utils import secure_filename
-import os
-from models import db, AuctionItem  # Assuming you have these models set up
-from app import UPLOAD_FOLDER  # Correct the import to use the app.py file
-from yourapp.helpers import allowed_file  # Assuming you have a helper function for file validation
+from yourapp import db, AuctionItem, UPLOAD_FOLDER  # replace 'yourapp' with your app module
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
-# Create the blueprint
+# Define allowed file extensions
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
 auctionitem_bp = Blueprint('auctionitem', __name__)
 
-# Define the route for updating an auction item
 @auctionitem_bp.route('/auctionitems/<int:auction_item_id>', methods=['PUT'])
 @jwt_required()
 def update_auction_item(auction_item_id):
