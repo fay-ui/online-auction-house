@@ -1,4 +1,9 @@
-@auctionitem_bp.route('/auctionitems/<int:auction_item_id>', methods=['PUT'])
+
+
+
+from flask import Blueprint
+
+auctionitem_bp = Blueprint('auctionitem', __name__)@auctionitem_bp.route('/auctionitems/<int:auction_item_id>', methods=['PUT'])
 @jwt_required()
 def update_auction_item(auction_item_id):
     # Get the current user's ID from the JWT token

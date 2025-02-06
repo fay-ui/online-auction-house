@@ -11,6 +11,8 @@ from flask_mail import Mail
 from flask_cors import CORS
 import logging
 
+logging.basicConfig(level=logging.DEBUG)
+
 # Load environment variables
 load_dotenv()
 
@@ -40,7 +42,7 @@ app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=1)
 app.config['JWT_REFRESH_TOKEN_EXPIRES'] = timedelta(days=30)
 
 # Image upload configuration
-UPLOAD_FOLDER = 'uploads'
+UPLOAD_FOLDER = '/path/to/upload/folder'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
