@@ -23,7 +23,7 @@ app = Flask(__name__)
 CORS(app, 
     resources={
         r"/*": {
-            "origins": "http://localhost:5173",
+            "origins": "http://localhost:5173",  # Frontend URL for development
             "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
             "allow_headers": ["Content-Type", "Authorization"]
         }
@@ -42,7 +42,7 @@ app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=1)
 app.config['JWT_REFRESH_TOKEN_EXPIRES'] = timedelta(days=30)
 
 # Image upload configuration
-UPLOAD_FOLDER = '/path/to/upload/folder'
+UPLOAD_FOLDER = os.path.join(os.getcwd(), 'uploads')  # Adjusted to current working directory
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
@@ -52,12 +52,11 @@ migrate = Migrate(app, db)
 jwt = JWTManager(app)
 mail = Mail(app)
 
+# Create upload directory if it doesn't exist
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
 # Import models after db initialization
 from models import User, AuctionItem, Bid, TokenBlocklist, EmailVerificationToken
-
-# Create upload directory
-if not os.path.exists(UPLOAD_FOLDER):
-    os.makedirs(UPLOAD_FOLDER)
 
 # Register blueprints
 from views.auth_blueprint import auth_bp
@@ -75,7 +74,7 @@ app.register_blueprint(auctionitem_bp)
 def serve_image(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
-# JWT configuration
+# JWT configuration to check revoked tokens
 @jwt.token_in_blocklist_loader
 def check_if_token_revoked(jwt_header, jwt_payload):
     jti = jwt_payload['jti']
