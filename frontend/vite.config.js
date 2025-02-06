@@ -6,7 +6,8 @@ export default defineConfig({
   plugins: [react()],
   server: {
     host: '0.0.0.0',  // Bind to all available IPs
-        
+           // Specify the port for local development (you can change if necessary)
+    historyApiFallback: true,  // Ensure SPA routing works (important for React Router)
   },
   preview: {
     allowedHosts: ['online-auction-house-4.onrender.com'],  // Add your host here
@@ -14,10 +15,5 @@ export default defineConfig({
   build: {
     // If you're deploying to a subfolder, specify the base path here.
     // base: '/your-subpath/',  // Uncomment this if needed
-  },
-  // Optional: Ensure SPA routing works by setting the following for production:
-  // Note: Render should handle this automatically if you are using the "static site" deployment.
-  server: {
-    historyApiFallback: true,  // Important for client-side routing (React Router)
   },
 })
