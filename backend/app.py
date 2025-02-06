@@ -1,12 +1,11 @@
-from flask import Flask, jsonify, request, Response, send_from_directory
+from flask import Flask, jsonify, request, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_jwt_extended import JWTManager, create_access_token, create_refresh_token, jwt_required, get_jwt_identity
-from werkzeug.utils import secure_filename
 import os
 from models import db, User, AuctionItem, Bid, TokenBlocklist, EmailVerificationToken
 from dotenv import load_dotenv
-from datetime import timedelta, datetime
+from datetime import timedelta
 from flask_mail import Mail
 from flask_cors import CORS
 import logging
@@ -73,6 +72,16 @@ app.register_blueprint(auctionitem_bp)
 @app.route('/uploads/<filename>')
 def serve_image(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+
+# Serve favicon
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(os.path.join(app.root_path, 'static'), 'favicon.ico')
+
+# Root route
+@app.route('/')
+def index():
+    return jsonify({"message": "Welcome to the Online Auction House!"})
 
 # JWT configuration to check revoked tokens
 @jwt.token_in_blocklist_loader
