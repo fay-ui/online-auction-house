@@ -1,9 +1,16 @@
+from flask import Blueprint, request, jsonify
+from flask_jwt_extended import jwt_required, get_jwt_identity
+from werkzeug.utils import secure_filename
+import os
+from models import db, AuctionItem  # Assuming you have these models set up
+from yourapp import UPLOAD_FOLDER  # Import your upload folder path here
+from yourapp.helpers import allowed_file  # Assuming you have a helper function for file validation
 
+# Create the blueprint
+auctionitem_bp = Blueprint('auctionitem', __name__)
 
-
-from flask import Blueprint
-
-auctionitem_bp = Blueprint('auctionitem', __name__)@auctionitem_bp.route('/auctionitems/<int:auction_item_id>', methods=['PUT'])
+# Define the route for updating an auction item
+@auctionitem_bp.route('/auctionitems/<int:auction_item_id>', methods=['PUT'])
 @jwt_required()
 def update_auction_item(auction_item_id):
     # Get the current user's ID from the JWT token
